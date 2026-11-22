@@ -1,0 +1,10 @@
+tests
+docs
+backups
+uploads
+*.db
+*.db-wal
+*.db-shm
+__pycache__
+.env
+.git

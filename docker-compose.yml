@@ -1,0 +1,32 @@
+# Запуск: cp .env.example .env  (заполнить), затем: docker compose up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TZ: ${TZ:-Asia/Bishkek}
+    volumes:
+      - kadry_data:/data          # база, сканы и резервные копии (/data/backups)
+    expose:
+      - "8000"
+
+  caddy:                          # HTTPS-сертификаты получает и продлевает сам
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?Укажите DOMAIN в файле .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  kadry_data:
+  caddy_data:
+  caddy_config:
